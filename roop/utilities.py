@@ -173,6 +173,8 @@ def has_extension(filepath: str, extensions: List[str]) -> bool:
 
 def is_image(image_path: str) -> bool:
     if image_path and os.path.isfile(image_path):
+        if image_path.endswith(".webp"):
+            return True
         mimetype, _ = mimetypes.guess_type(image_path)
         return bool(mimetype and mimetype.startswith("image/"))
     return False
@@ -337,3 +339,6 @@ gradio: {gradio.__version__}
 
 def compute_cosine_distance(emb1, emb2) -> float:
     return distance.cosine(emb1, emb2)
+
+def print_cuda_info():
+    print(f'Number of CUDA devices: {torch.cuda.device_count()} Currently used Id: {torch.cuda.current_device()} Device Name: {torch.cuda.get_device_name(torch.cuda.current_device())}')

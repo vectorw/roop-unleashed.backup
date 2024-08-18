@@ -14,6 +14,7 @@ import signal
 import torch
 import onnxruntime
 import pathlib
+import argparse
 
 from time import time
 
@@ -47,9 +48,14 @@ warnings.filterwarnings('ignore', category=UserWarning, module='torchvision')
 def parse_args() -> None:
     signal.signal(signal.SIGINT, lambda signal_number, frame: destroy())
     roop.globals.headless = False
+
+    program = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=100))
+    program.add_argument('--server_share', help='Public server', dest='server_share', action='store_true', default=False)
+    program.add_argument('--cuda_device_id', help='Index of the cuda gpu to use', dest='cuda_device_id', type=int, default=0)
+    args = program.parse_args()
+    roop.globals.cuda_device_id = args.cuda_device_id
+
     # Always enable all processors when using GUI
-    if len(sys.argv) > 1:
-        print('No CLI args supported - use Settings Tab instead')
     roop.globals.frame_processors = ['face_swapper', 'face_enhancer']
 
 
@@ -58,8 +64,18 @@ def encode_execution_providers(execution_providers: List[str]) -> List[str]:
 
 
 def decode_execution_providers(execution_providers: List[str]) -> List[str]:
-    return [provider for provider, encoded_execution_provider in zip(onnxruntime.get_available_providers(), encode_execution_providers(onnxruntime.get_available_providers()))
+    list_providers = [provider for provider, encoded_execution_provider in zip(onnxruntime.get_available_providers(), encode_execution_providers(onnxruntime.get_available_providers()))
             if any(execution_provider in encoded_execution_provider for execution_provider in execution_providers)]
+    
+    for i in range(len(list_providers)):
+        if list_providers[i] == 'CUDAExecutionProvider':
+            list_providers[i] = ('CUDAExecutionProvider', {'device_id': roop.globals.cuda_device_id})
+            if torch.cuda is not None:
+                torch.cuda.set_device(roop.globals.cuda_device_id)
+            break
+
+    return list_providers
+    
 
 
 def suggest_max_memory() -> int:

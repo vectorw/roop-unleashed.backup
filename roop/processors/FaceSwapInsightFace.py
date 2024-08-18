@@ -32,7 +32,7 @@ class FaceSwapInsightFace():
             self.input_std = 255.0
             #cuda_options = {"arena_extend_strategy": "kSameAsRequested", 'cudnn_conv_algo_search': 'DEFAULT'}            
             sess_options = onnxruntime.SessionOptions()
-            sess_options.enable_cpu_mem_arena = False            
+            sess_options.enable_cpu_mem_arena = False
             self.model_swap_insightface = onnxruntime.InferenceSession(model_path, sess_options, providers=roop.globals.execution_providers)
 
 

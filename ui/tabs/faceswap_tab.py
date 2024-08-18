@@ -370,6 +370,9 @@ def on_use_face_from_selected(files, frame_num):
         else:
             gr.Info('No faces detected!')
             roop.globals.target_path = None
+    else:
+        gr.Info('Unknown image/video type!')
+        roop.globals.target_path = None
 
     if len(thumbs) == 1:
         roop.globals.TARGET_FACES.append(SELECTION_FACES_DATA[0][0])
