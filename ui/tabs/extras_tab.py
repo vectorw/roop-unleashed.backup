@@ -208,7 +208,7 @@ def on_frame_process(files, filterselection, upscaleselection):
     filter = next((x for x in frame_upscalers_map.keys() if x == upscaleselection), None)
     if filter is not None:
         processoroptions.update(frame_upscalers_map[filter])
-    options = ProcessOptions(processoroptions, 0,  0, "all", 0, None, None, 0, 128, False)
+    options = ProcessOptions(processoroptions, 0,  0, "all", 0, None, None, 0, 128, False, False)
     batch_process_with_options(list_files_process, options, None)
     outdir = pathlib.Path(roop.globals.output_path)
     outfiles = [str(item) for item in outdir.rglob("*") if item.is_file()]

@@ -1,6 +1,6 @@
 class ProcessOptions:
 
-    def __init__(self, processordefines:dict, face_distance,  blend_ratio, swap_mode, selected_index, masking_text, imagemask, num_steps, subsample_size, show_face_area, show_mask=False):
+    def __init__(self, processordefines:dict, face_distance,  blend_ratio, swap_mode, selected_index, masking_text, imagemask, num_steps, subsample_size, show_face_area, restore_original_mouth, show_mask=False):
         self.processors = processordefines
         self.face_distance_threshold = face_distance
         self.blend_ratio = blend_ratio
@@ -12,3 +12,4 @@ class ProcessOptions:
         self.show_face_area_overlay = show_face_area
         self.show_face_masking = show_mask
         self.subsample_size = subsample_size
+        self.restore_original_mouth = restore_original_mouth

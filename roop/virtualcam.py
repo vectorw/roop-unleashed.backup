@@ -46,9 +46,9 @@ def virtualcamera(streamobs, cam_num,width,height):
         print(f'Not streaming to virtual camera!')
     subsample_size = roop.globals.subsample_size
 
-    # always use xseg masking
+    # always use xseg masking & restore mouth
     options = ProcessOptions(get_processing_plugins("mask_xseg"), roop.globals.distance_threshold, roop.globals.blend_ratio,
-                              "all", 0, None, None, 1, subsample_size, False)
+                              "all", 0, None, None, 1, subsample_size, False, True)
     while cam_active:
         ret, frame = cap.read()
         if not ret:
