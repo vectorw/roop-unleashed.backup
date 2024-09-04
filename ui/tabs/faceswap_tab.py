@@ -44,27 +44,97 @@ def faceswap_tab():
         with gr.Row(variant='panel'):
             with gr.Column(scale=2):
                 with gr.Row():
-                    with gr.Column(min_width=160):
-                        input_faces = gr.Gallery(label="Input faces", allow_preview=False, preview=False, height=128, object_fit="scale-down", columns=8)
+                    input_faces = gr.Gallery(label="Input faces gallery", allow_preview=False, preview=False, height=128, object_fit="scale-down", columns=8, interactive=False)
+                    target_faces = gr.Gallery(label="Target faces gallery", allow_preview=False, preview=False, height=128, object_fit="scale-down", columns=8, interactive=False)
+                with gr.Row():
+                    bt_move_left_input = gr.Button("⬅ Move left", size='sm')
+                    bt_move_right_input = gr.Button("➡ Move right", size='sm')
+                    bt_move_left_target = gr.Button("⬅ Move left", size='sm')
+                    bt_move_right_target = gr.Button("➡ Move right", size='sm')
+                with gr.Row():
+                    bt_remove_selected_input_face = gr.Button("❌ Remove selected", size='sm')
+                    bt_clear_input_faces = gr.Button("💥 Clear all", variant='stop', size='sm')
+                    bt_remove_selected_target_face = gr.Button("❌ Remove selected", size='sm')
+                    bt_add_local = gr.Button('Add local files from', size='sm')
+
+                with gr.Row():
+                    with gr.Column(scale=2):
                         with gr.Accordion(label="Advanced Masking", open=False):
-                            chk_showmaskoffsets = gr.Checkbox(label="Show mask overlay in preview", value=False, interactive=True)
-                            chk_restoreoriginalmouth = gr.Checkbox(label="Restore original mouth area", value=False, interactive=True)
-                            mask_top = gr.Slider(0, 1.0, value=0, label="Offset Face Top", step=0.01, interactive=True)
-                            mask_bottom = gr.Slider(0, 1.0, value=0, label="Offset Face Bottom", step=0.01, interactive=True)
-                            mask_left = gr.Slider(0, 1.0, value=0, label="Offset Face Left", step=0.01, interactive=True)
-                            mask_right = gr.Slider(0, 1.0, value=0, label="Offset Face Right", step=0.01, interactive=True)
-                            mask_erosion = gr.Slider(1.0, 3.0, value=1.0, label="Erosion Iterations", step=1.00, interactive=True)
-                            mask_blur = gr.Slider(10.0, 50.0, value=20.0, label="Blur size", step=1.00, interactive=True)
-                            bt_toggle_masking = gr.Button("Toggle manual masking", variant='secondary', size='sm')
-                            selected_mask_engine = gr.Dropdown(["None", "Clip2Seg", "DFL XSeg"], value="None", label="Face masking engine")
-                            clip_text = gr.Textbox(label="List of objects to mask and restore back on fake face", value="cup,hands,hair,banana", interactive=False)
-                            bt_preview_mask = gr.Button("👥 Show Mask Preview", variant='secondary')
-                        bt_remove_selected_input_face = gr.Button("❌ Remove selected", size='sm')
-                        bt_clear_input_faces = gr.Button("💥 Clear all", variant='stop', size='sm')
-                    with gr.Column(min_width=160):
-                        target_faces = gr.Gallery(label="Target faces", allow_preview=False, preview=False, height=128, object_fit="scale-down", columns=8)
-                        bt_remove_selected_target_face = gr.Button("❌ Remove selected", size='sm')
-                        bt_add_local = gr.Button('Add local files from', size='sm')
+                            chk_showmaskoffsets = gr.Checkbox(
+                                label="Show mask overlay in preview",
+                                value=False,
+                                interactive=True,
+                            )
+                            chk_restoreoriginalmouth = gr.Checkbox(
+                                label="Restore original mouth area",
+                                value=False,
+                                interactive=True,
+                            )
+                            mask_top = gr.Slider(
+                                0,
+                                1.0,
+                                value=0,
+                                label="Offset Face Top",
+                                step=0.01,
+                                interactive=True,
+                            )
+                            mask_bottom = gr.Slider(
+                                0,
+                                1.0,
+                                value=0,
+                                label="Offset Face Bottom",
+                                step=0.01,
+                                interactive=True,
+                            )
+                            mask_left = gr.Slider(
+                                0,
+                                1.0,
+                                value=0,
+                                label="Offset Face Left",
+                                step=0.01,
+                                interactive=True,
+                            )
+                            mask_right = gr.Slider(
+                                0,
+                                1.0,
+                                value=0,
+                                label="Offset Face Right",
+                                step=0.01,
+                                interactive=True,
+                            )
+                            mask_erosion = gr.Slider(
+                                1.0,
+                                3.0,
+                                value=1.0,
+                                label="Erosion Iterations",
+                                step=1.00,
+                                interactive=True,
+                            )
+                            mask_blur = gr.Slider(
+                                10.0,
+                                50.0,
+                                value=20.0,
+                                label="Blur size",
+                                step=1.00,
+                                interactive=True,
+                            )
+                            bt_toggle_masking = gr.Button(
+                                "Toggle manual masking", variant="secondary", size="sm"
+                            )
+                            selected_mask_engine = gr.Dropdown(
+                                ["None", "Clip2Seg", "DFL XSeg"],
+                                value="None",
+                                label="Face masking engine",
+                            )
+                            clip_text = gr.Textbox(
+                                label="List of objects to mask and restore back on fake face",
+                                value="cup,hands,hair,banana",
+                                interactive=False,
+                            )
+                            bt_preview_mask = gr.Button(
+                                "👥 Show Mask Preview", variant="secondary"
+                            )
+                    with gr.Column(scale=2):
                         local_folder = gr.Textbox(show_label=False, placeholder="/content/", interactive=True)
                 with gr.Row(variant='panel'):
                     bt_srcfiles = gr.Files(label='Source File(s)', file_count="multiple", file_types=["image", ".fsz"], elem_id='filelist', height=233)
@@ -78,9 +148,9 @@ def faceswap_tab():
                 maskimage = gr.ImageEditor(label="Manual mask Image", sources=["clipboard"], transforms="", type="numpy",
                                              brush=gr.Brush(color_mode="fixed", colors=["rgba(255, 255, 255, 1"]), interactive=True, visible=False)
                 with gr.Row(variant='panel'):
-                        fake_preview = gr.Checkbox(label="Face swap frames", value=False)
-                        bt_refresh_preview = gr.Button("🔄 Refresh", variant='secondary', size='sm')
-                        bt_use_face_from_preview = gr.Button("Use Face from this Frame", variant='primary', size='sm')
+                    fake_preview = gr.Checkbox(label="Face swap frames", value=False)
+                    bt_refresh_preview = gr.Button("🔄 Refresh", variant='secondary', size='sm')
+                    bt_use_face_from_preview = gr.Button("Use Face from this Frame", variant='primary', size='sm')
                 with gr.Row():
                     preview_frame_num = gr.Slider(1, 1, value=1, label="Frame Number", info='0:00:00', step=1.0, interactive=True)
                 with gr.Row():
@@ -95,7 +165,7 @@ def faceswap_tab():
                 bt_cancelfaceselect = gr.Button("Done", size='sm')
             with gr.Column():
                 gr.Markdown(' ') 
-    
+
         with gr.Row(variant='panel'):
             with gr.Column(scale=1):
                 selected_face_detection = gr.Dropdown(["First found", "All female", "All male", "All faces", "Selected face"], value="First found", label="Specify face selection for swapping")
@@ -112,7 +182,6 @@ def faceswap_tab():
             with gr.Column(scale=2):
                 ui.globals.ui_blend_ratio = gr.Slider(0.0, 1.0, value=0.65, label="Original/Enhanced image blend ratio", info="Only used with active post-processing")
 
-
         with gr.Row(variant='panel'):
             with gr.Column(scale=1):
                 video_swapping_method = gr.Dropdown(["Extract Frames to media","In-Memory processing"], value="In-Memory processing", label="Select video processing method", interactive=True)
@@ -124,8 +193,6 @@ def faceswap_tab():
                     roop.globals.skip_audio = gr.Checkbox(label="Skip audio", value=False)
                     roop.globals.keep_frames = gr.Checkbox(label="Keep Frames (relevant only when extracting frames)", value=False)
                     roop.globals.wait_after_extraction = gr.Checkbox(label="Wait for user key press before creating video ", value=False)
-
-
 
         with gr.Row(variant='panel'):
             with gr.Column():
@@ -146,6 +213,12 @@ def faceswap_tab():
                         max_face_distance, ui.globals.ui_blend_ratio, selected_mask_engine, clip_text, no_face_action, vr_mode, autorotate, maskimage, chk_showmaskoffsets, chk_restoreoriginalmouth, num_swap_steps, ui.globals.ui_upscale]
     previewoutputs = [previewimage, maskimage, preview_frame_num] 
     input_faces.select(on_select_input_face, None, None).then(fn=on_preview_frame_changed, inputs=previewinputs, outputs=previewoutputs)
+    
+    bt_move_left_input.click(fn=move_selected_input, inputs=[bt_move_left_input], outputs=[input_faces])
+    bt_move_right_input.click(fn=move_selected_input, inputs=[bt_move_right_input], outputs=[input_faces])
+    bt_move_left_target.click(fn=move_selected_target, inputs=[bt_move_left_target], outputs=[target_faces])
+    bt_move_right_target.click(fn=move_selected_target, inputs=[bt_move_right_target], outputs=[target_faces])
+
     bt_remove_selected_input_face.click(fn=remove_selected_input_face, outputs=[input_faces])
     bt_srcfiles.change(fn=on_srcfile_changed, show_progress='full', inputs=bt_srcfiles, outputs=[dynamic_face_selection, face_selection, input_faces])
 
@@ -156,7 +229,6 @@ def faceswap_tab():
     mask_erosion.release(fn=on_mask_erosion_changed, inputs=[mask_erosion], show_progress='hidden')
     mask_blur.release(fn=on_mask_blur_changed, inputs=[mask_blur], show_progress='hidden')
     selected_mask_engine.change(fn=on_mask_engine_changed, inputs=[selected_mask_engine], outputs=[clip_text], show_progress='hidden')
-
 
     target_faces.select(on_select_target_face, None, None)
     bt_remove_selected_target_face.click(fn=remove_selected_target_face, outputs=[target_faces])
@@ -170,9 +242,8 @@ def faceswap_tab():
     face_selection.select(on_select_face, None, None)
     bt_faceselect.click(fn=on_selected_face, outputs=[input_faces, target_faces, selected_face_detection])
     bt_cancelfaceselect.click(fn=on_end_face_selection, outputs=[dynamic_face_selection, face_selection])
-    
-    bt_clear_input_faces.click(fn=on_clear_input_faces, outputs=[input_faces])
 
+    bt_clear_input_faces.click(fn=on_clear_input_faces, outputs=[input_faces])
 
     bt_add_local.click(fn=on_add_local_folder, inputs=[local_folder], outputs=[bt_destfiles])
     bt_preview_mask.click(fn=on_preview_mask, inputs=[preview_frame_num, bt_destfiles, clip_text, selected_mask_engine], outputs=[previewimage]) 
@@ -182,9 +253,9 @@ def faceswap_tab():
                     roop.globals.skip_audio, max_face_distance, ui.globals.ui_blend_ratio, selected_mask_engine, clip_text,video_swapping_method, no_face_action, vr_mode, autorotate, chk_restoreoriginalmouth, num_swap_steps, ui.globals.ui_upscale, maskimage],
         outputs=[bt_start, bt_stop, resultfiles], show_progress='full')
     after_swap_event = start_event.then(fn=on_resultfiles_finished, inputs=[resultfiles], outputs=[resultimage, resultvideo])
-    
+
     bt_stop.click(fn=stop_swap, cancels=[start_event, after_swap_event], outputs=[bt_start, bt_stop], queue=False)
-    
+
     bt_refresh_preview.click(fn=on_preview_frame_changed, inputs=previewinputs, outputs=previewoutputs)            
     bt_toggle_masking.click(fn=on_toggle_masking, inputs=[previewimage, maskimage], outputs=[previewimage, maskimage])            
     fake_preview.change(fn=on_preview_frame_changed, inputs=previewinputs, outputs=previewoutputs)
@@ -193,8 +264,7 @@ def faceswap_tab():
     set_frame_start.click(fn=on_set_frame, inputs=[set_frame_start, preview_frame_num], outputs=[text_frame_clip])
     set_frame_end.click(fn=on_set_frame, inputs=[set_frame_end, preview_frame_num], outputs=[text_frame_clip])
 
-                     
-            
+
 def on_mask_top_changed(mask_offset):
     set_mask_offset(0, mask_offset)
 
@@ -231,7 +301,6 @@ def on_mask_engine_changed(mask_engine):
     if mask_engine == "Clip2Seg":
         return gr.Textbox(interactive=True)
     return gr.Textbox(interactive=False)
-
 
 
 def on_add_local_folder(folder):
@@ -326,22 +395,59 @@ def remove_selected_input_face():
 
     return ui.globals.ui_input_thumbs
 
+def move_selected_input(button_text):
+    global SELECTED_INPUT_FACE_INDEX
+
+    if button_text == "⬅ Move left":
+        if SELECTED_INPUT_FACE_INDEX <= 0:
+            return ui.globals.ui_input_thumbs
+        offset = -1
+    else:
+        if len(ui.globals.ui_input_thumbs) <= SELECTED_INPUT_FACE_INDEX:
+            return ui.globals.ui_input_thumbs
+        offset = 1
+    
+    f = roop.globals.INPUT_FACESETS.pop(SELECTED_INPUT_FACE_INDEX)
+    roop.globals.INPUT_FACESETS.insert(SELECTED_INPUT_FACE_INDEX + offset, f)
+    f = ui.globals.ui_input_thumbs.pop(SELECTED_INPUT_FACE_INDEX)
+    ui.globals.ui_input_thumbs.insert(SELECTED_INPUT_FACE_INDEX + offset, f)
+    return ui.globals.ui_input_thumbs
+        
+
+def move_selected_target(button_text):
+    global SELECTED_TARGET_FACE_INDEX
+
+    if button_text == "⬅ Move left":
+        if SELECTED_TARGET_FACE_INDEX <= 0:
+            return ui.globals.ui_target_thumbs
+        offset = -1
+    else:
+        if len(ui.globals.ui_target_thumbs) <= SELECTED_TARGET_FACE_INDEX:
+            return ui.globals.ui_target_thumbs
+        offset = 1
+    
+    f = ui.globals.ui_target_thumbs.pop(SELECTED_TARGET_FACE_INDEX)
+    ui.globals.ui_target_thumbs.insert(SELECTED_TARGET_FACE_INDEX + offset, f)
+    f = ui.globals.ui_target_thumbs.pop(SELECTED_TARGET_FACE_INDEX)
+    ui.globals.ui_target_thumbs.insert(SELECTED_TARGET_FACE_INDEX + offset, f)
+    return ui.globals.ui_target_thumbs
+
+
+
+
 def on_select_target_face(evt: gr.SelectData):
     global SELECTED_TARGET_FACE_INDEX
 
     SELECTED_TARGET_FACE_INDEX = evt.index
 
 def remove_selected_target_face():
-    if len(roop.globals.TARGET_FACES) > SELECTED_TARGET_FACE_INDEX:
+    if len(ui.globals.ui_target_thumbs) > SELECTED_TARGET_FACE_INDEX:
         f = roop.globals.TARGET_FACES.pop(SELECTED_TARGET_FACE_INDEX)
         del f
     if len(ui.globals.ui_target_thumbs) > SELECTED_TARGET_FACE_INDEX:
         f = ui.globals.ui_target_thumbs.pop(SELECTED_TARGET_FACE_INDEX)
         del f
     return ui.globals.ui_target_thumbs
-
-
-
 
 
 def on_use_face_from_selected(files, frame_num):
@@ -383,11 +489,10 @@ def on_use_face_from_selected(files, frame_num):
     return gr.Row(visible=True), thumbs, gr.Gallery(visible=True), gr.Dropdown(visible=True)
 
 
-
 def on_select_face(evt: gr.SelectData):  # SelectData is a subclass of EventData
     global SELECTED_FACE_INDEX
     SELECTED_FACE_INDEX = evt.index
-    
+
 
 def on_selected_face():
     global IS_INPUT, SELECTED_FACE_INDEX, SELECTION_FACES_DATA
@@ -405,7 +510,7 @@ def on_selected_face():
         roop.globals.TARGET_FACES.append(fd[0])
         ui.globals.ui_target_thumbs.append(image)
         return gr.Gallery(visible=True), ui.globals.ui_target_thumbs, gr.Dropdown(value='Selected face')
-    
+
 #        bt_faceselect.click(fn=on_selected_face, outputs=[dynamic_face_selection, face_selection, input_faces, target_faces])
 
 def on_end_face_selection():
@@ -489,7 +594,6 @@ def map_mask_engine(selected_mask_engine, clip_text):
     else:
         mask_engine = None
     return mask_engine
-    
 
 
 def on_toggle_masking(previewimage, mask):
@@ -521,7 +625,6 @@ def on_set_frame(sender:str, frame_num):
         list_files_process[idx].endframe = max(frame_num, start)
     
     return gen_processing_text(list_files_process[idx].startframe,list_files_process[idx].endframe)
-    
 
 
 def on_preview_mask(frame_num, files, clip_text, mask_engine):
@@ -552,7 +655,6 @@ def on_preview_mask(frame_num, files, clip_text, mask_engine):
     return util.convert_to_gradio(current_frame)
 
 
-
 def on_clear_input_faces():
     ui.globals.ui_input_thumbs.clear()
     roop.globals.INPUT_FACESETS.clear()
@@ -580,7 +682,6 @@ def translate_swap_mode(dropdown_text):
         return "all_male"
     
     return "all"
-
 
 
 def start_swap( enhancer, detection, keep_frames, wait_after_extraction, skip_audio, face_distance, blend_ratio,
@@ -675,8 +776,6 @@ def on_destfiles_changed(destfiles):
     if total_frames > 1:
         return gr.Slider(value=1, maximum=total_frames, info='0:00:00'), gen_processing_text(list_files_process[idx].startframe,list_files_process[idx].endframe)
     return gr.Slider(value=1, maximum=total_frames, info='0:00:00'), ''
-    
-
 
 
 def on_destfiles_selected(evt: gr.SelectData):
@@ -698,8 +797,7 @@ def on_destfiles_selected(evt: gr.SelectData):
     if total_frames > 1:
         return gr.Slider(value=list_files_process[idx].startframe, maximum=total_frames, info='0:00:00'), gen_processing_text(list_files_process[idx].startframe,list_files_process[idx].endframe), fps
     return gr.Slider(value=1, maximum=total_frames, info='0:00:00'), gen_processing_text(0,0), fps
-    
-    
+
 
 def on_resultfiles_selected(evt: gr.SelectData, files):
     selected_index = evt.index

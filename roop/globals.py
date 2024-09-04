@@ -5,8 +5,9 @@ source_path = None
 target_path = None
 output_path = None
 target_folder_path = None
-cuda_device_id = 0
+startup_args = None
 
+cuda_device_id = 0
 frame_processors: List[str] = []
 keep_fps = None
 keep_frames = None

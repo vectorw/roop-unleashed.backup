@@ -52,9 +52,7 @@ def parse_args() -> None:
     program = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=100))
     program.add_argument('--server_share', help='Public server', dest='server_share', action='store_true', default=False)
     program.add_argument('--cuda_device_id', help='Index of the cuda gpu to use', dest='cuda_device_id', type=int, default=0)
-    args = program.parse_args()
-    roop.globals.cuda_device_id = args.cuda_device_id
-
+    roop.globals.startup_args = program.parse_args()
     # Always enable all processors when using GUI
     roop.globals.frame_processors = ['face_swapper', 'face_enhancer']
 
@@ -389,8 +387,11 @@ def run() -> None:
     if not pre_check():
         return
     roop.globals.CFG = Settings('config.yaml')
+    roop.globals.cuda_device_id = roop.globals.startup_args.cuda_device_id
     roop.globals.execution_threads = roop.globals.CFG.max_threads
     roop.globals.video_encoder = roop.globals.CFG.output_video_codec
     roop.globals.video_quality = roop.globals.CFG.video_quality
     roop.globals.max_memory = roop.globals.CFG.memory_limit if roop.globals.CFG.memory_limit > 0 else None
+    if roop.globals.startup_args.server_share:
+        roop.globals.CFG.server_share = True
     main.run()
