@@ -65,12 +65,15 @@ def decode_execution_providers(execution_providers: List[str]) -> List[str]:
     list_providers = [provider for provider, encoded_execution_provider in zip(onnxruntime.get_available_providers(), encode_execution_providers(onnxruntime.get_available_providers()))
             if any(execution_provider in encoded_execution_provider for execution_provider in execution_providers)]
     
-    for i in range(len(list_providers)):
-        if list_providers[i] == 'CUDAExecutionProvider':
-            list_providers[i] = ('CUDAExecutionProvider', {'device_id': roop.globals.cuda_device_id})
-            if torch.cuda is not None:
-                torch.cuda.set_device(roop.globals.cuda_device_id)
-            break
+    try:
+        for i in range(len(list_providers)):
+            if list_providers[i] == 'CUDAExecutionProvider':
+                list_providers[i] = ('CUDAExecutionProvider', {'device_id': roop.globals.cuda_device_id})
+                if torch.cuda is not None and torch.cuda.is_available():
+                    torch.cuda.set_device(roop.globals.cuda_device_id)
+                break
+    except:
+        pass
 
     return list_providers
     
