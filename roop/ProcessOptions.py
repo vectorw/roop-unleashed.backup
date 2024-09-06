@@ -13,3 +13,4 @@ class ProcessOptions:
         self.show_face_masking = show_mask
         self.subsample_size = subsample_size
         self.restore_original_mouth = restore_original_mouth
+        self.max_num_reuse_frame = 15

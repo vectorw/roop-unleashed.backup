@@ -22,7 +22,7 @@ def facemgr_tab() -> None:
                         Add multiple reference images into a faceset file.
                         """)
         with gr.Row():
-            videoimagefst = gr.Image(label="Cut face from video frame", height=576, interactive=False, visible=True)
+            videoimagefst = gr.Image(label="Cut face from video frame", height=576, interactive=False, visible=True, format="jpeg")
         with gr.Row():
             frame_num_fst = gr.Slider(1, 1, value=1, label="Frame Number", info='0:00:00', step=1.0, interactive=False)
             fb_cutfromframe = gr.Button("Use faces from this frame", variant='secondary', interactive=False)

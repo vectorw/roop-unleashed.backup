@@ -30,7 +30,7 @@ selected_preview_index = 0
 is_processing = False            
 
 list_files_process : list[ProcessEntry] = []
-no_face_choices = ["Use untouched original frame","Retry rotated", "Skip Frame", "Skip Frame if no similar face"]
+no_face_choices = ["Use untouched original frame","Retry rotated", "Skip Frame", "Skip Frame if no similar face", "Use last swapped"]
 
 current_video_fps = 50
 
@@ -144,7 +144,7 @@ def faceswap_tab():
                     forced_fps = gr.Slider(minimum=0, maximum=120, value=0, label="Video FPS", info='Overrides detected fps if not 0', step=1.0, interactive=True, container=True)
 
             with gr.Column(scale=2):
-                previewimage = gr.Image(label="Preview Image", height=576, interactive=False, visible=True)
+                previewimage = gr.Image(label="Preview Image", height=576, interactive=False, visible=True, format=get_gradio_output_format())
                 maskimage = gr.ImageEditor(label="Manual mask Image", sources=["clipboard"], transforms="", type="numpy",
                                              brush=gr.Brush(color_mode="fixed", colors=["rgba(255, 255, 255, 1"]), interactive=True, visible=False)
                 with gr.Row(variant='panel'):
@@ -212,7 +212,7 @@ def faceswap_tab():
     previewinputs = [preview_frame_num, bt_destfiles, fake_preview, ui.globals.ui_selected_enhancer, selected_face_detection,
                         max_face_distance, ui.globals.ui_blend_ratio, selected_mask_engine, clip_text, no_face_action, vr_mode, autorotate, maskimage, chk_showmaskoffsets, chk_restoreoriginalmouth, num_swap_steps, ui.globals.ui_upscale]
     previewoutputs = [previewimage, maskimage, preview_frame_num] 
-    input_faces.select(on_select_input_face, None, None).then(fn=on_preview_frame_changed, inputs=previewinputs, outputs=previewoutputs)
+    input_faces.select(on_select_input_face, None, None).success(fn=on_preview_frame_changed, inputs=previewinputs, outputs=previewoutputs)
     
     bt_move_left_input.click(fn=move_selected_input, inputs=[bt_move_left_input], outputs=[input_faces])
     bt_move_right_input.click(fn=move_selected_input, inputs=[bt_move_right_input], outputs=[input_faces])
@@ -234,8 +234,8 @@ def faceswap_tab():
     bt_remove_selected_target_face.click(fn=remove_selected_target_face, outputs=[target_faces])
 
     forced_fps.change(fn=on_fps_changed, inputs=[forced_fps], show_progress='hidden')
-    bt_destfiles.change(fn=on_destfiles_changed, inputs=[bt_destfiles], outputs=[preview_frame_num, text_frame_clip], show_progress='hidden').then(fn=on_preview_frame_changed, inputs=previewinputs, outputs=previewoutputs, show_progress='hidden')
-    bt_destfiles.select(fn=on_destfiles_selected, outputs=[preview_frame_num, text_frame_clip, forced_fps], show_progress='hidden').then(fn=on_preview_frame_changed, inputs=previewinputs, outputs=previewoutputs, show_progress='hidden')
+    bt_destfiles.change(fn=on_destfiles_changed, inputs=[bt_destfiles], outputs=[preview_frame_num, text_frame_clip], show_progress='hidden').success(fn=on_preview_frame_changed, inputs=previewinputs, outputs=previewoutputs, show_progress='hidden')
+    bt_destfiles.select(fn=on_destfiles_selected, outputs=[preview_frame_num, text_frame_clip, forced_fps], show_progress='hidden').success(fn=on_preview_frame_changed, inputs=previewinputs, outputs=previewoutputs, show_progress='hidden')
     bt_destfiles.clear(fn=on_clear_destfiles, outputs=[target_faces, selected_face_detection])
     resultfiles.select(fn=on_resultfiles_selected, inputs=[resultfiles], outputs=[resultimage, resultvideo])
 
@@ -252,7 +252,7 @@ def faceswap_tab():
         inputs=[ui.globals.ui_selected_enhancer, selected_face_detection, roop.globals.keep_frames, roop.globals.wait_after_extraction,
                     roop.globals.skip_audio, max_face_distance, ui.globals.ui_blend_ratio, selected_mask_engine, clip_text,video_swapping_method, no_face_action, vr_mode, autorotate, chk_restoreoriginalmouth, num_swap_steps, ui.globals.ui_upscale, maskimage],
         outputs=[bt_start, bt_stop, resultfiles], show_progress='full')
-    after_swap_event = start_event.then(fn=on_resultfiles_finished, inputs=[resultfiles], outputs=[resultimage, resultvideo])
+    after_swap_event = start_event.success(fn=on_resultfiles_finished, inputs=[resultfiles], outputs=[resultimage, resultvideo])
 
     bt_stop.click(fn=stop_swap, cancels=[start_event, after_swap_event], outputs=[bt_start, bt_stop], queue=False)
 
@@ -811,6 +811,12 @@ def on_resultfiles_finished(files):
     
     filename = files[selected_index].name
     return display_output(filename)
+
+
+def get_gradio_output_format():
+    if roop.globals.CFG.output_image_format == "jpg":
+        return "jpeg"
+    return roop.globals.CFG.output_image_format
 
 
 def display_output(filename):

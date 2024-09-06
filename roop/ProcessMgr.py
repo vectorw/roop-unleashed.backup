@@ -26,7 +26,8 @@ class eNoFaceAction():
     USE_ORIGINAL_FRAME = 0
     RETRY_ROTATED = 1
     SKIP_FRAME = 2
-    SKIP_FRAME_IF_DISSIMILAR = 3
+    SKIP_FRAME_IF_DISSIMILAR = 3,
+    USE_LAST_SWAPPED = 4
 
 
 
@@ -70,7 +71,8 @@ class ProcessMgr():
     progress_gradio = None
     total_frames = 0
 
-    
+    num_frames_no_face = 0
+    last_swapped_frame = None
 
 
     plugins =  { 
@@ -103,6 +105,8 @@ class ProcessMgr():
     def initialize(self, input_faces, target_faces, options):
         self.input_face_datas = input_faces
         self.target_face_datas = target_faces
+        self.num_frames_no_face = 0
+        self.last_swapped_frame = None
         self.options = options
         devicename = get_device()
 
@@ -329,8 +333,16 @@ class ProcessMgr():
             if roop.globals.no_face_action == eNoFaceAction.SKIP_FRAME_IF_DISSIMILAR:
                 if len(self.input_face_datas) > num_swapped:
                     return None
+            self.num_frames_no_face = 0
+            self.last_swapped_frame = temp_frame.copy()
             return temp_frame
-        if roop.globals.no_face_action == eNoFaceAction.USE_ORIGINAL_FRAME:
+        if roop.globals.no_face_action == eNoFaceAction.USE_LAST_SWAPPED:
+            if self.last_swapped_frame is not None and self.num_frames_no_face < self.options.max_num_reuse_frame:
+                self.num_frames_no_face += 1
+                return self.last_swapped_frame.copy()
+            return frame
+
+        elif roop.globals.no_face_action == eNoFaceAction.USE_ORIGINAL_FRAME:
             return frame
         if roop.globals.no_face_action == eNoFaceAction.SKIP_FRAME:
             #This only works with in-mem processing, as it simply skips the frame.

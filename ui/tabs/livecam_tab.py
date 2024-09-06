@@ -27,7 +27,7 @@ def livecam_tab():
                 dd_reso = gr.Dropdown(choices=["640x480","1280x720", "1920x1080"], value="1280x720", label="Fake Camera Resolution", interactive=True)
 
         with gr.Row():
-            fake_cam_image = gr.Image(label='Fake Camera Output', interactive=False)
+            fake_cam_image = gr.Image(label='Fake Camera Output', interactive=False, format="jpeg")
 
     start_event = bt_start.click(fn=start_cam,  inputs=[cb_obs, camera_num, dd_reso, ui.globals.ui_selected_enhancer, ui.globals.ui_blend_ratio, ui.globals.ui_upscale],outputs=[bt_start, bt_stop,fake_cam_image])
     bt_stop.click(fn=stop_swap, cancels=[start_event], outputs=[bt_start, bt_stop], queue=False)
