@@ -137,7 +137,7 @@ def faceswap_tab():
                     with gr.Column(scale=2):
                         local_folder = gr.Textbox(show_label=False, placeholder="/content/", interactive=True)
                 with gr.Row(variant='panel'):
-                    bt_srcfiles = gr.Files(label='Source File(s)', file_count="multiple", file_types=["image", ".fsz"], elem_id='filelist', height=233)
+                    bt_srcfiles = gr.Files(label='Source Images or Facesets', file_count="multiple", file_types=["image", ".fsz"], elem_id='filelist', height=233)
                     bt_destfiles = gr.Files(label='Target File(s)', file_count="multiple", file_types=["image", "video"], elem_id='filelist', height=233)
                 with gr.Row(variant='panel'):
                     gr.Markdown('')
@@ -220,7 +220,7 @@ def faceswap_tab():
     bt_move_right_target.click(fn=move_selected_target, inputs=[bt_move_right_target], outputs=[target_faces])
 
     bt_remove_selected_input_face.click(fn=remove_selected_input_face, outputs=[input_faces])
-    bt_srcfiles.change(fn=on_srcfile_changed, show_progress='full', inputs=bt_srcfiles, outputs=[dynamic_face_selection, face_selection, input_faces])
+    bt_srcfiles.change(fn=on_srcfile_changed, show_progress='full', inputs=bt_srcfiles, outputs=[dynamic_face_selection, face_selection, input_faces, bt_srcfiles])
 
     mask_top.release(fn=on_mask_top_changed, inputs=[mask_top], show_progress='hidden')
     mask_bottom.release(fn=on_mask_bottom_changed, inputs=[mask_bottom], show_progress='hidden')
@@ -316,9 +316,8 @@ def on_srcfile_changed(srcfiles, progress=gr.Progress()):
     IS_INPUT = True
 
     if srcfiles is None or len(srcfiles) < 1:
-        return gr.Column(visible=False), None, ui.globals.ui_input_thumbs
+        return gr.Column(visible=False), None, ui.globals.ui_input_thumbs, None
 
-    thumbs = []
     for f in srcfiles:    
         source_path = f.name
         if source_path.lower().endswith('fsz'):
@@ -368,13 +367,7 @@ def on_srcfile_changed(srcfiles, progress=gr.Progress()):
                 roop.globals.INPUT_FACESETS.append(face_set)
                 
     progress(1.0)
-
-    # old style with selecting input faces commented out
-    # if len(thumbs) < 1:     
-    #     return gr.Column(visible=False), None, ui.globals.ui_input_thumbs
-    # return gr.Column(visible=True), thumbs, gr.Gallery(visible=True)
-
-    return gr.Column(visible=False), None, ui.globals.ui_input_thumbs
+    return gr.Column(visible=False), None, ui.globals.ui_input_thumbs,None
 
 
 def on_select_input_face(evt: gr.SelectData):
@@ -426,8 +419,8 @@ def move_selected_target(button_text):
             return ui.globals.ui_target_thumbs
         offset = 1
     
-    f = ui.globals.ui_target_thumbs.pop(SELECTED_TARGET_FACE_INDEX)
-    ui.globals.ui_target_thumbs.insert(SELECTED_TARGET_FACE_INDEX + offset, f)
+    f = roop.globals.TARGET_FACES.pop(SELECTED_TARGET_FACE_INDEX)
+    roop.globals.TARGET_FACES.insert(SELECTED_TARGET_FACE_INDEX + offset, f)
     f = ui.globals.ui_target_thumbs.pop(SELECTED_TARGET_FACE_INDEX)
     ui.globals.ui_target_thumbs.insert(SELECTED_TARGET_FACE_INDEX + offset, f)
     return ui.globals.ui_target_thumbs
