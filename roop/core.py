@@ -69,8 +69,7 @@ def decode_execution_providers(execution_providers: List[str]) -> List[str]:
         for i in range(len(list_providers)):
             if list_providers[i] == 'CUDAExecutionProvider':
                 list_providers[i] = ('CUDAExecutionProvider', {'device_id': roop.globals.cuda_device_id})
-                if torch.cuda is not None and torch.cuda.is_available():
-                    torch.cuda.set_device(roop.globals.cuda_device_id)
+                torch.cuda.set_device(roop.globals.cuda_device_id)
                 break
     except:
         pass

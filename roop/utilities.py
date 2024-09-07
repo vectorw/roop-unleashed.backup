@@ -340,5 +340,12 @@ gradio: {gradio.__version__}
 def compute_cosine_distance(emb1, emb2) -> float:
     return distance.cosine(emb1, emb2)
 
+def has_cuda_device():
+    return torch.cuda is not None and torch.cuda.is_available()
+
+
 def print_cuda_info():
-    print(f'Number of CUDA devices: {torch.cuda.device_count()} Currently used Id: {torch.cuda.current_device()} Device Name: {torch.cuda.get_device_name(torch.cuda.current_device())}')
+    try:
+        print(f'Number of CUDA devices: {torch.cuda.device_count()} Currently used Id: {torch.cuda.current_device()} Device Name: {torch.cuda.get_device_name(torch.cuda.current_device())}')
+    except:
+       print('No CUDA device found!')
