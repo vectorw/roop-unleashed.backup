@@ -44,8 +44,8 @@ def faceswap_tab():
         with gr.Row(variant='panel'):
             with gr.Column(scale=2):
                 with gr.Row():
-                    input_faces = gr.Gallery(label="Input faces gallery", allow_preview=False, preview=False, height=128, object_fit="scale-down", columns=8, interactive=False)
-                    target_faces = gr.Gallery(label="Target faces gallery", allow_preview=False, preview=False, height=128, object_fit="scale-down", columns=8, interactive=False)
+                    input_faces = gr.Gallery(label="Input faces gallery", allow_preview=False, preview=False, height=138, columns=64, object_fit="scale-down", interactive=False)
+                    target_faces = gr.Gallery(label="Target faces gallery", allow_preview=False, preview=False, height=138, columns=64, object_fit="scale-down", rows=1, interactive=False)
                 with gr.Row():
                     bt_move_left_input = gr.Button("⬅ Move left", size='sm')
                     bt_move_right_input = gr.Button("➡ Move right", size='sm')
@@ -159,7 +159,7 @@ def faceswap_tab():
                     set_frame_end = gr.Button("➡ Set as End", size='sm')
         with gr.Row(visible=False) as dynamic_face_selection:
             with gr.Column(scale=2):
-                face_selection = gr.Gallery(label="Detected faces", allow_preview=False, preview=False, height=256, object_fit="cover", columns=8)
+                face_selection = gr.Gallery(label="Detected faces", allow_preview=False, preview=False, height=138, object_fit="cover", columns=32)
             with gr.Column():
                 bt_faceselect = gr.Button("☑ Use selected face", size='sm')
                 bt_cancelfaceselect = gr.Button("Done", size='sm')
