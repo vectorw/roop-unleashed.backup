@@ -21,7 +21,6 @@ def get_video_frame(video_path: str, frame_number: int = 0) -> Optional[Frame]:
 
     if video_path != current_video_path:
         release_video()
-
         current_capture = cv2.VideoCapture(video_path)
         current_video_path = video_path
         current_frame_total = current_capture.get(cv2.CAP_PROP_FRAME_COUNT)

@@ -762,7 +762,11 @@ def on_destfiles_changed(destfiles):
     
     if util.is_video(filename) or filename.lower().endswith('gif'):
         total_frames = get_video_frame_total(filename)
-        current_video_fps = util.detect_fps(filename)
+        if total_frames is None or total_frames < 1:
+            total_frames = 1
+            gr.Warning(f"Corrupted video {filename}, can't detect number of frames!")
+        else:
+            current_video_fps = util.detect_fps(filename)
     else:
         total_frames = 1
     list_files_process[idx].endframe = total_frames

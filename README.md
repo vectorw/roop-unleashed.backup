@@ -60,6 +60,37 @@ Additional commandline arguments are currently unsupported and settings should b
 
 ### Changelog
 
+**16.9.2024** v4.2.8
+
+- Bugfix: Starting roop-unleashed without NVIDIA gpu but cuda option enabled
+- Bugfix: Target Faces couldn't be moved left/right
+- Bugfix: Enhancement and upscaling working again in virtual cam
+- Corrupt videos caught when adding to target files, displaying warning msg
+- Source Files Component cleared after face detection to release temp files
+- Added masking and mouth restore options to virtual cam
+
+
+**9.9.2024** v4.2.3
+
+- Hotfix for gradio pydantic issue with fastapi
+- Upgraded to Gradio 4.43 hoping it will fix remaining issues
+- Added new action when no face detected -> use last swapped
+- Specified image format for image controls - opening new tabs on preview images possible again!
+- Hardcoded image output format for livecam to jpeg - might be faster than previous webp
+- Chain events to be only executed if previous was a success
+
+
+**5.9.2024** v4.2.0
+
+- Added ability to move input & target faces order
+- New CLI Arguments override settings
+- Small UI changes to faceswapping tab
+- Added mask option and code for restoration of original mouth area
+- Updated gradio to v4.42.0
+- Added CLI Arguments --server_share and --cuda_device_id
+- Added webp image support
+
+
 **15.07.2024** v4.1.1
 
 - Bugfix: Post-processing after swapping
