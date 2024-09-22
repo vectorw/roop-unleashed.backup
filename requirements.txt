@@ -6,6 +6,7 @@ fastapi<0.113.0
 opencv-python==4.9.0.80
 onnx==1.16.0
 insightface==0.7.3
+albucore==0.0.16
 psutil==5.9.6
 torch==2.1.2+cu118; sys_platform != 'darwin'
 torch==2.1.2; sys_platform == 'darwin'
