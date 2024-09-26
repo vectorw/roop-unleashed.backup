@@ -37,6 +37,7 @@ class Settings:
         self.output_template = self.default_get(data, 'output_template', '{file}_{time}')
         self.use_os_temp_folder = self.default_get(data, 'use_os_temp_folder', False)
         self.output_show_video = self.default_get(data, 'output_show_video', True)
+        self.launch_browser = self.default_get(data, 'launch_browser', True)
 
 
 
