@@ -364,7 +364,9 @@ def batch_process(files:list[ProcessEntry], use_new_method) -> None:
                             os.remove(video_file_name)
                     else:
                         shutil.move(video_file_name, destination)
-                update_status(f'\nProcessing {os.path.basename(destination)} took {time() - start_processing} secs')
+                elapsed_time = time() - start_processing
+                average_fps = (v.endframe - v.startframe) / elapsed_time
+                update_status(f'\nProcessing {os.path.basename(destination)} took {elapsed_time:.2f} secs, {average_fps:.2f} frames/s')
 
             else:
                 update_status(f'Failed processing {os.path.basename(v.finalname)}!')
