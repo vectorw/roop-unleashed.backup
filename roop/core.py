@@ -220,7 +220,7 @@ def live_swap(frame, options):
     return newframe
 
 
-def batch_process_regular(files:list[ProcessEntry], masking_engine:str, new_clip_text:str, use_new_method, imagemask, restore_original_mouth, num_swap_steps, progress, selected_index = 0) -> None:
+def batch_process_regular(output_method, files:list[ProcessEntry], masking_engine:str, new_clip_text:str, use_new_method, imagemask, restore_original_mouth, num_swap_steps, progress, selected_index = 0) -> None:
     global clip_text, process_mgr
 
     release_resources()
@@ -234,7 +234,7 @@ def batch_process_regular(files:list[ProcessEntry], masking_engine:str, new_clip
                               roop.globals.face_swap_mode, selected_index, new_clip_text, mask, num_swap_steps,
                               roop.globals.subsample_size, False, restore_original_mouth)
     process_mgr.initialize(roop.globals.INPUT_FACESETS, roop.globals.TARGET_FACES, options)
-    batch_process(files, use_new_method)
+    batch_process(output_method, files, use_new_method)
     return
 
 def batch_process_with_options(files:list[ProcessEntry], options, progress):
@@ -248,11 +248,11 @@ def batch_process_with_options(files:list[ProcessEntry], options, progress):
     roop.globals.keep_frames = False
     roop.globals.wait_after_extraction = False
     roop.globals.skip_audio = False
-    batch_process(files, True)
+    batch_process("Files", files, True)
 
 
 
-def batch_process(files:list[ProcessEntry], use_new_method) -> None:
+def batch_process(output_method, files:list[ProcessEntry], use_new_method) -> None:
     global clip_text, process_mgr
 
     roop.globals.processing = True
@@ -305,9 +305,12 @@ def batch_process(files:list[ProcessEntry], use_new_method) -> None:
             if v.endframe == 0:
                 v.endframe = get_video_frame_total(v.filename)
 
-            update_status(f'Creating {os.path.basename(v.finalname)} with {fps} FPS...')
+            is_streaming_only = output_method == "Virtual Camera"
+            if is_streaming_only == False:
+                update_status(f'Creating {os.path.basename(v.finalname)} with {fps} FPS...')
+
             start_processing = time()
-            if roop.globals.keep_frames or not use_new_method:
+            if is_streaming_only == False and roop.globals.keep_frames or not use_new_method:
                 util.create_temp(v.filename)
                 update_status('Extracting frames...')
                 ffmpeg.extract_frames(v.filename,v.startframe,v.endframe, fps)
@@ -335,7 +338,7 @@ def batch_process(files:list[ProcessEntry], use_new_method) -> None:
                     skip_audio = True
                 else:
                     skip_audio = roop.globals.skip_audio
-                process_mgr.run_batch_inmem(v.filename, v.finalname, v.startframe, v.endframe, fps,roop.globals.execution_threads, skip_audio)
+                process_mgr.run_batch_inmem(output_method, v.filename, v.finalname, v.startframe, v.endframe, fps,roop.globals.execution_threads, skip_audio)
                 
             if not roop.globals.processing:
                 end_processing('Processing stopped!')
@@ -364,12 +367,12 @@ def batch_process(files:list[ProcessEntry], use_new_method) -> None:
                             os.remove(video_file_name)
                     else:
                         shutil.move(video_file_name, destination)
-                elapsed_time = time() - start_processing
-                average_fps = (v.endframe - v.startframe) / elapsed_time
-                update_status(f'\nProcessing {os.path.basename(destination)} took {elapsed_time:.2f} secs, {average_fps:.2f} frames/s')
 
-            else:
+            elif is_streaming_only == False:
                 update_status(f'Failed processing {os.path.basename(v.finalname)}!')
+            elapsed_time = time() - start_processing
+            average_fps = (v.endframe - v.startframe) / elapsed_time
+            update_status(f'\nProcessing {os.path.basename(destination)} took {elapsed_time:.2f} secs, {average_fps:.2f} frames/s')
     end_processing('Finished')
 
 

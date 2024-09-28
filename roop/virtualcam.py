@@ -84,5 +84,5 @@ def stop_virtual_cam():
     if cam_active:
         cam_active = False
         cam_thread.join()
-    
+
 

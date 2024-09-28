@@ -65,6 +65,14 @@ Additional commandline arguments are currently unsupported and settings should b
 
 ### Changelog
 
+**28.9.2024** v4.3.1
+
+- Bugfix: Several possible memory leaks
+- Added different output modes, e.g. to virtual cam stream
+- New swapping mode "All input faces"
+- Average total fps displayed and setting for autorun
+
+
 **16.9.2024** v4.2.8
 
 - Bugfix: Starting roop-unleashed without NVIDIA gpu but cuda option enabled

@@ -3,7 +3,6 @@ import cv2
 import numpy as np
 import psutil
 
-from enum import Enum
 from roop.ProcessOptions import ProcessOptions
 
 from roop.face_util import get_first_face, get_all_faces, rotate_anticlockwise, rotate_clockwise, clamp_cut_values
@@ -17,6 +16,7 @@ from threading import Thread, Lock
 from queue import Queue
 from tqdm import tqdm
 from roop.ffmpeg_writer import FFMPEG_VideoWriter
+from roop.StreamWriter import StreamWriter
 import roop.globals
 
 
@@ -67,12 +67,16 @@ class ProcessMgr():
     processed_queue = None
 
     videowriter= None
+    streamwriter = None
 
     progress_gradio = None
     total_frames = 0
 
     num_frames_no_face = 0
     last_swapped_frame = None
+
+    output_to_file = None
+    output_to_cam = None
 
 
     plugins =  { 
@@ -245,7 +249,10 @@ class ProcessMgr():
             process, frame = self.processed_queue[nextindex % self.num_threads].get()
             nextindex += 1
             if frame is not None:
-                self.videowriter.write_frame(frame)
+                if self.output_to_file:
+                    self.videowriter.write_frame(frame)
+                if self.output_to_cam:
+                    self.streamwriter.WriteToStream(frame)
                 del frame
             elif process == False:
                 num_producers -= 1
@@ -254,7 +261,7 @@ class ProcessMgr():
             
 
 
-    def run_batch_inmem(self, source_video, target_video, frame_start, frame_end, fps, threads:int = 1, skip_audio=False):
+    def run_batch_inmem(self, output_method, source_video, target_video, frame_start, frame_end, fps, threads:int = 1, skip_audio=False):
         cap = cv2.VideoCapture(source_video)
         # frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         frame_count = (frame_end - frame_start) + 1
@@ -281,7 +288,13 @@ class ProcessMgr():
             self.frames_queue.append(Queue(1))
             self.processed_queue.append(Queue(1))
 
-        self.videowriter =  FFMPEG_VideoWriter(target_video, (width, height), fps, codec=roop.globals.video_encoder, crf=roop.globals.video_quality, audiofile=None)
+        self.output_to_file = output_method != "Virtual Camera"
+        self.output_to_cam = output_method == "Virtual Camera" or output_method == "Both"
+
+        if self.output_to_file:
+            self.videowriter = FFMPEG_VideoWriter(target_video, (width, height), fps, codec=roop.globals.video_encoder, crf=roop.globals.video_quality, audiofile=None)
+        if self.output_to_cam:
+            self.streamwriter = StreamWriter((width, height), int(fps))
 
         readthread = Thread(target=self.read_frames_thread, args=(cap, frame_start, frame_end, threads))
         readthread.start()
@@ -304,7 +317,11 @@ class ProcessMgr():
         readthread.join()
         writethread.join()
         cap.release()
-        self.videowriter.close()
+        if self.output_to_file:
+            self.videowriter.close()
+        if self.output_to_cam:
+            self.streamwriter.Close()
+
         self.frames_queue.clear()
         self.processed_queue.clear()
 
@@ -383,6 +400,8 @@ class ProcessMgr():
             
             num_faces_found += 1
             temp_frame = self.process_face(self.options.selected_index, face, temp_frame)
+            del face
+
         else:
             faces = get_all_faces(frame)
             if faces is None:
@@ -392,7 +411,14 @@ class ProcessMgr():
                 for face in faces:
                     num_faces_found += 1
                     temp_frame = self.process_face(self.options.selected_index, face, temp_frame)
-                    del face
+
+            elif self.options.swap_mode == "all_input":
+                for i,face in enumerate(faces):
+                    num_faces_found += 1
+                    if i < len(self.input_face_datas):
+                        temp_frame = self.process_face(i, face, temp_frame)
+                    else:
+                        break
             
             elif self.options.swap_mode == "selected":
                 num_targetfaces = len(self.target_face_datas) 
@@ -406,7 +432,6 @@ class ProcessMgr():
                                 else:
                                     temp_frame = self.process_face(i, face, temp_frame)
                                 num_faces_found += 1
-                            del face
                             if not roop.globals.vr_mode and num_faces_found == num_targetfaces:
                                 break
             elif self.options.swap_mode == "all_female" or self.options.swap_mode == "all_male":
@@ -415,7 +440,13 @@ class ProcessMgr():
                     if face.sex == gender:
                         num_faces_found += 1
                         temp_frame = self.process_face(self.options.selected_index, face, temp_frame)
-                    del face
+            
+            # might be slower but way more clean to release everything here
+            for face in faces:
+                del face
+            faces.clear()
+
+
 
         if roop.globals.vr_mode and num_faces_found % 2 > 0:
             # stereo image, there has to be an even number of faces
@@ -855,4 +886,8 @@ class ProcessMgr():
         for p in self.processors:
             p.Release()
         self.processors.clear()
+        if self.videowriter is not None:
+            self.videowriter.close()
+        if self.streamwriter is not None:
+            self.streamwriter.Close()
 
