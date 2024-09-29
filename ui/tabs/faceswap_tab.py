@@ -10,6 +10,7 @@ from roop.capturer import get_video_frame, get_video_frame_total, get_image_fram
 from roop.ProcessEntry import ProcessEntry
 from roop.ProcessOptions import ProcessOptions
 from roop.FaceSet import FaceSet
+from roop.utilities import clean_dir
 
 last_image = None
 
@@ -690,7 +691,7 @@ def start_swap( output_method, enhancer, detection, keep_frames, wait_after_extr
         return gr.Button(variant="primary"), None, None
     
     if roop.globals.CFG.clear_output:
-        shutil.rmtree(roop.globals.output_path)
+        clean_dir(roop.globals.output_path)
 
     if not util.is_installed("ffmpeg"):
         msg = "ffmpeg is not installed! No video processing possible."

@@ -49,7 +49,16 @@ Simply run the following command. It will check and install all dependencies if 
 - Windows: run the `windows_run.bat` from the Installer.
 - Linux: `python run.py`
 - macOS: `sh runMacOS.sh`
-- Dockerfile - `docker build -t roop-unleashed .`
+- Dockerfile:
+  ```shell
+  docker build -t roop-unleashed . && docker run -t \
+    -p 7860:7860 \
+    -v ./config.yaml:/app/config.yaml \
+    -v ./models:/app/models \
+    -v ./temp:/app/temp \
+    -v ./output:/app/output \
+    roop-unleashed
+  ```
 
 <a target="_blank" href="https://colab.research.google.com/github/C0untFloyd/roop-unleashed/blob/main/roop-unleashed.ipynb">
   <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>

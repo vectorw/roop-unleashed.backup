@@ -4,6 +4,7 @@ import shutil
 import roop.utilities as util
 import roop.util_ffmpeg as ffmpeg
 import roop.globals
+from roop.utilities import clean_dir
 
 frame_filters_map = { 
     "Colorize B/W Images (Deoldify Artistic)" : {"colorizer" : {"subtype": "deoldify_artistic"}},
@@ -194,7 +195,7 @@ def on_frame_process(files, filterselection, upscaleselection):
         return None
 
     if roop.globals.CFG.clear_output:
-        shutil.rmtree(roop.globals.output_path)
+        clean_dir(roop.globals.output_path)
     prepare_environment()
     list_files_process : list[ProcessEntry] = []
 

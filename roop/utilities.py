@@ -349,3 +349,12 @@ def print_cuda_info():
         print(f'Number of CUDA devices: {torch.cuda.device_count()} Currently used Id: {torch.cuda.current_device()} Device Name: {torch.cuda.get_device_name(torch.cuda.current_device())}')
     except:
        print('No CUDA device found!')
+
+def clean_dir(path: str):
+    contents = os.listdir(path)
+    for item in contents:
+        item_path = os.path.join(path, item)
+        if os.path.isfile(item_path):
+            os.remove(item_path)
+        elif os.path.isdir(item_path):
+            shutil.rmtree(item_path)
