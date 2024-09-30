@@ -70,12 +70,8 @@ if "%ffmpeg_exists%" == "F" (
         echo Downloading ffmpeg from %FFMPEG_DOWNLOAD_URL% to %INSTALL_DIR%
         call curl -Lk "%FFMPEG_DOWNLOAD_URL%" > "%INSTALL_DIR%\ffmpeg.zip" || ( echo. && echo ffmpeg failed to download. && goto end )
         call powershell -command "Expand-Archive -Force '%INSTALL_DIR%\ffmpeg.zip' '%INSTALL_DIR%\'"
-        cd "installer_files"
-        setlocal EnableExtensions EnableDelayedExpansion
-        for /f "tokens=*" %%f in ('dir /s /b /ad "ffmpeg\*"') do (
-            ren "%%f" "ffmpeg"
-        )
-        endlocal
+        cd "%INSTALL_DIR%"
+        move ffmpeg-* ffmpeg
         setx PATH "%INSTALL_FFMPEG_DIR%\bin\;%PATH%"
         echo To use videos, you need to restart roop after this installation.
         cd ..
