@@ -97,6 +97,9 @@ def create_video_from_gif(gif_path: str, output_path):
     run_ffmpeg(['-i', gif_path, '-vf', f'"{filter}"', '-movflags', '+faststart', '-shortest', output_path])
 
 
+def repair_video(original_video: str, final_video : str):
+    run_ffmpeg(['-i', original_video, '-movflags', 'faststart', '-acodec', 'copy', '-vcodec', 'copy', final_video])
+
 
 def restore_audio(intermediate_video: str, original_video: str, trim_frame_start, trim_frame_end, final_video : str) -> None:
 	fps = util.detect_fps(original_video)
