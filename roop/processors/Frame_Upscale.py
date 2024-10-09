@@ -2,10 +2,10 @@ import cv2
 import numpy as np
 import onnxruntime
 import roop.globals
-import threading
 
-from roop.utilities import resolve_relative_path
+from roop.utilities import resolve_relative_path, conditional_thread_semaphore
 from roop.typing import Frame
+
 
 class Frame_Upscale():
     plugin_options:dict = None
@@ -15,8 +15,6 @@ class Frame_Upscale():
 
     processorname = 'upscale'
     type = 'frame_enhancer'
-
-    THREAD_LOCK_UPSCALE = threading.Lock()
 
 
     def Initialize(self, plugin_options:dict):
@@ -40,7 +38,7 @@ class Frame_Upscale():
             elif self.prev_type == "lsdirx4":
                 model_path = resolve_relative_path('../models/Frame/lsdir_x4.onnx')
                 self.scale = 4
-
+            onnxruntime.set_default_logger_severity(3)
             self.model_upscale = onnxruntime.InferenceSession(model_path, None, providers=roop.globals.execution_providers)
             self.model_inputs = self.model_upscale.get_inputs()
             model_outputs = self.model_upscale.get_outputs()
@@ -109,7 +107,7 @@ class Frame_Upscale():
 
         for index, tile_frame in enumerate(upscale_tile_frames):
             tile_frame = self.prepare_tile_frame(tile_frame)
-            with self.THREAD_LOCK_UPSCALE:
+            with conditional_thread_semaphore():
                 self.io_binding.bind_cpu_input(self.model_inputs[0].name, tile_frame)
                 self.model_upscale.run_with_iobinding(self.io_binding)
                 ort_outs = self.io_binding.copy_outputs_to_cpu()

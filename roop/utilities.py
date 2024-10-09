@@ -13,6 +13,11 @@ import tempfile
 import cv2
 import zipfile
 import traceback
+import threading
+import threading
+
+from typing import Union, Any
+from contextlib import nullcontext
 
 from pathlib import Path
 from typing import List, Any
@@ -25,6 +30,10 @@ import roop.globals
 
 TEMP_FILE = "temp.mp4"
 TEMP_DIRECTORY = "temp"
+
+THREAD_SEMAPHORE = threading.Semaphore()
+NULL_CONTEXT  = nullcontext()
+
 
 # monkey patch ssl for mac
 if platform.system().lower() == "darwin":
@@ -362,3 +371,8 @@ def clean_dir(path: str):
         except Exception as e:
             print(e)
             
+
+def conditional_thread_semaphore() -> Union[Any, Any]:
+    if 'DmlExecutionProvider' in roop.globals.execution_providers or 'ROCMExecutionProvider' in roop.globals.execution_providers:
+        return THREAD_SEMAPHORE
+    return NULL_CONTEXT

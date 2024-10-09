@@ -1,13 +1,11 @@
 import numpy as np
 import cv2
 import onnxruntime
-import threading
 import roop.globals
 
 from roop.typing import Frame
-from roop.utilities import resolve_relative_path
+from roop.utilities import resolve_relative_path, conditional_thread_semaphore
 
-THREAD_LOCK_CLIP = threading.Lock()
 
 
 class Mask_XSeg():

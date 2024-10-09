@@ -7,10 +7,6 @@ import roop.globals
 from roop.typing import Face, Frame, FaceSet
 from roop.utilities import resolve_relative_path
 
-
-# THREAD_LOCK = threading.Lock()
-
-
 class Enhance_CodeFormer():
     model_codeformer = None
 

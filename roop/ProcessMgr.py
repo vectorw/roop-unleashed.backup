@@ -195,7 +195,8 @@ class ProcessMgr():
                     resimg = self.process_frame(temp_frame)
                 if resimg is not None:
                     i = source_files.index(f)
-                    cv2.imwrite(target_files[i], resimg)
+                    # Also let numpy write the file to support utf-8/16 filenames
+                    cv2.imencode(f'.{roop.globals.CFG.output_image_format}',resimg)[1].tofile(target_files[i])
             if update:
                 update()
 
@@ -261,7 +262,11 @@ class ProcessMgr():
             
 
 
-    def run_batch_inmem(self, output_method, source_video, target_video, frame_start, frame_end, fps, threads:int = 1, skip_audio=False):
+    def run_batch_inmem(self, output_method, source_video, target_video, frame_start, frame_end, fps, threads:int = 1):
+        if len(self.processors) < 1:
+            print("No processor defined!")
+            return
+
         cap = cv2.VideoCapture(source_video)
         # frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         frame_count = (frame_end - frame_start) + 1

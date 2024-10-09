@@ -9,18 +9,18 @@ import cv2
 import numpy as np
 from skimage import transform as trans
 from roop.capturer import get_video_frame
-from roop.utilities import resolve_relative_path, conditional_download
+from roop.utilities import resolve_relative_path, conditional_thread_semaphore
 
 FACE_ANALYSER = None
-THREAD_LOCK_ANALYSER = threading.Lock()
-THREAD_LOCK_SWAPPER = threading.Lock()
+#THREAD_LOCK_ANALYSER = threading.Lock()
+#THREAD_LOCK_SWAPPER = threading.Lock()
 FACE_SWAPPER = None
 
 
 def get_face_analyser() -> Any:
     global FACE_ANALYSER
 
-    with THREAD_LOCK_ANALYSER:
+    with conditional_thread_semaphore():
         if FACE_ANALYSER is None or roop.globals.g_current_face_analysis != roop.globals.g_desired_face_analysis:
             model_path = resolve_relative_path('..')
             # removed genderage

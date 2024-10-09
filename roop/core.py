@@ -338,7 +338,7 @@ def batch_process(output_method, files:list[ProcessEntry], use_new_method) -> No
                     skip_audio = True
                 else:
                     skip_audio = roop.globals.skip_audio
-                process_mgr.run_batch_inmem(output_method, v.filename, v.finalname, v.startframe, v.endframe, fps,roop.globals.execution_threads, skip_audio)
+                process_mgr.run_batch_inmem(output_method, v.filename, v.finalname, v.startframe, v.endframe, fps,roop.globals.execution_threads)
                 
             if not roop.globals.processing:
                 end_processing('Processing stopped!')
