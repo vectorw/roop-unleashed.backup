@@ -210,7 +210,7 @@ arcface_dst = np.array(
 )
 
 
-def estimate_norm(lmk, image_size=112):
+""" def estimate_norm(lmk, image_size=112):
     assert lmk.shape == (5, 2)
     if image_size % 112 == 0:
         ratio = float(image_size) / 112.0
@@ -224,6 +224,35 @@ def estimate_norm(lmk, image_size=112):
 
     dst = arcface_dst * ratio
     dst[:, 0] += diff_x
+    tform = trans.SimilarityTransform()
+    tform.estimate(lmk, dst)
+    M = tform.params[0:2, :]
+    return M
+ """
+
+def estimate_norm(lmk, image_size=112):
+    if image_size%112==0:
+        ratio = float(image_size)/112.0
+        diff_x = 0
+    else:
+        ratio = float(image_size)/128.0
+        diff_x = 8.0*ratio
+    dst = arcface_dst * ratio
+    dst[:,0] += diff_x
+
+    if image_size == 160:
+        dst[:,0] += 0.1
+        dst[:,1] += 0.1
+    elif image_size == 256:
+        dst[:,0] += 0.5
+        dst[:,1] += 0.5
+    elif image_size == 320:
+        dst[:,0] += 0.75
+        dst[:,1] += 0.75
+    elif image_size == 512:
+        dst[:,0] += 1.5
+        dst[:,1] += 1.5
+
     tform = trans.SimilarityTransform()
     tform.estimate(lmk, dst)
     M = tform.params[0:2, :]

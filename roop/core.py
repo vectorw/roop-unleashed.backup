@@ -134,6 +134,8 @@ def pre_check() -> bool:
     
     download_directory_path = util.resolve_relative_path('../models')
     util.conditional_download(download_directory_path, ['https://huggingface.co/countfloyd/deepfake/resolve/main/inswapper_128.onnx'])
+    util.conditional_download(download_directory_path, ['https://huggingface.co/countfloyd/deepfake/resolve/main/reswapper_128.onnx'])
+    util.conditional_download(download_directory_path, ['https://huggingface.co/countfloyd/deepfake/resolve/main/reswapper_256.onnx'])
     util.conditional_download(download_directory_path, ['https://huggingface.co/countfloyd/deepfake/resolve/main/GFPGANv1.4.onnx'])
     util.conditional_download(download_directory_path, ['https://github.com/csxmli2016/DMDNet/releases/download/v1/DMDNet.pth'])
     util.conditional_download(download_directory_path, ['https://huggingface.co/countfloyd/deepfake/resolve/main/GPEN-BFR-512.onnx'])
@@ -220,7 +222,7 @@ def live_swap(frame, options):
     return newframe
 
 
-def batch_process_regular(output_method, files:list[ProcessEntry], masking_engine:str, new_clip_text:str, use_new_method, imagemask, restore_original_mouth, num_swap_steps, progress, selected_index = 0) -> None:
+def batch_process_regular(swap_model, output_method, files:list[ProcessEntry], masking_engine:str, new_clip_text:str, use_new_method, imagemask, restore_original_mouth, num_swap_steps, progress, selected_index = 0) -> None:
     global clip_text, process_mgr
 
     release_resources()
@@ -230,7 +232,7 @@ def batch_process_regular(output_method, files:list[ProcessEntry], masking_engin
     mask = imagemask["layers"][0] if imagemask is not None else None
     if len(roop.globals.INPUT_FACESETS) <= selected_index:
         selected_index = 0
-    options = ProcessOptions(get_processing_plugins(masking_engine), roop.globals.distance_threshold, roop.globals.blend_ratio,
+    options = ProcessOptions(swap_model, get_processing_plugins(masking_engine), roop.globals.distance_threshold, roop.globals.blend_ratio,
                               roop.globals.face_swap_mode, selected_index, new_clip_text, mask, num_swap_steps,
                               roop.globals.subsample_size, False, restore_original_mouth)
     process_mgr.initialize(roop.globals.INPUT_FACESETS, roop.globals.TARGET_FACES, options)

@@ -74,6 +74,15 @@ Additional commandline arguments are currently unsupported and settings should b
 
 ### Changelog
 
+**30.12.2024** v4.4.0
+
+- Added random face selection mode
+- Added alternative face swapping model with 128px & 256 px output ([ReSwapper](https://github.com/somanchiu/ReSwapper/tree/main))
+- Video repair added to Extras Tab
+- Updated most packages to newer versions. CUDA >= 12.4 now required!
+- Several minor bugfixes and QoL Changes
+
+
 **28.9.2024** v4.3.1
 
 - Bugfix: Several possible memory leaks

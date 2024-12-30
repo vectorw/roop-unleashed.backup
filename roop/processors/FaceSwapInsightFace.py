@@ -1,5 +1,4 @@
 import roop.globals
-import cv2
 import numpy as np
 import onnx
 import onnxruntime
@@ -19,12 +18,12 @@ class FaceSwapInsightFace():
 
     def Initialize(self, plugin_options:dict):
         if self.plugin_options is not None:
-            if self.plugin_options["devicename"] != plugin_options["devicename"]:
+            if self.plugin_options["devicename"] != plugin_options["devicename"] or self.plugin_options["modelname"] != plugin_options["modelname"]:
                 self.Release()
 
         self.plugin_options = plugin_options
         if self.model_swap_insightface is None:
-            model_path = resolve_relative_path('../models/inswapper_128.onnx')
+            model_path = resolve_relative_path('../models/' + self.plugin_options["modelname"])
             graph = onnx.load(model_path).graph
             self.emap = onnx.numpy_helper.to_array(graph.initializer[-1])
             self.devicename = self.plugin_options["devicename"].replace('mps', 'cpu')

@@ -15,6 +15,7 @@ import zipfile
 import traceback
 import threading
 import threading
+import random
 
 from typing import Union, Any
 from contextlib import nullcontext
@@ -376,3 +377,17 @@ def conditional_thread_semaphore() -> Union[Any, Any]:
     if 'DmlExecutionProvider' in roop.globals.execution_providers or 'ROCMExecutionProvider' in roop.globals.execution_providers:
         return THREAD_SEMAPHORE
     return NULL_CONTEXT
+
+def shuffle_array(arr):
+  """
+  Shuffles the given array in place using the Fisher-Yates shuffle algorithm.
+
+  Args:
+    arr: The array to be shuffled.
+
+  Returns:
+    None. The array is shuffled in place.
+  """
+  for i in range(len(arr) - 1, 0, -1):
+    j = random.randint(0, i)
+    arr[i], arr[j] = arr[j], arr[i]

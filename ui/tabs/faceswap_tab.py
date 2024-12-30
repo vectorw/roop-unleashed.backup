@@ -31,8 +31,10 @@ selected_preview_index = 0
 is_processing = False            
 
 list_files_process : list[ProcessEntry] = []
+model_swap_choices = ["InSwapper 128", "ReSwapper 128", "ReSwapper 256"]
+
 no_face_choices = ["Use untouched original frame","Retry rotated", "Skip Frame", "Skip Frame if no similar face", "Use last swapped"]
-swap_choices = ["First found", "All input faces", "All female", "All male", "All faces", "Selected face"]
+swap_choices = ["First found", "All input faces", "All input faces (random)", "All female", "All male", "All faces", "Selected face"]
 
 current_video_fps = 50
 
@@ -142,7 +144,7 @@ def faceswap_tab():
                     bt_srcfiles = gr.Files(label='Source Images or Facesets', file_count="multiple", file_types=["image", ".fsz"], elem_id='filelist', height=233)
                     bt_destfiles = gr.Files(label='Target File(s)', file_count="multiple", file_types=["image", "video"], elem_id='filelist', height=233)
                 with gr.Row(variant='panel'):
-                    gr.Markdown('')
+                    selected_swap_model = gr.Dropdown(model_swap_choices, value=model_swap_choices[2], label="Specify Face Swap Model")
                     forced_fps = gr.Slider(minimum=0, maximum=120, value=0, label="Video FPS", info='Overrides detected fps if not 0', step=1.0, interactive=True, container=True)
 
             with gr.Column(scale=2):
@@ -211,7 +213,7 @@ def faceswap_tab():
                 resultimage = gr.Image(type='filepath', label='Final Image', interactive=False )
                 resultvideo = gr.Video(label='Final Video', interactive=False, visible=False)
 
-    previewinputs = [preview_frame_num, bt_destfiles, fake_preview, ui.globals.ui_selected_enhancer, selected_face_detection,
+    previewinputs = [selected_swap_model, preview_frame_num, bt_destfiles, fake_preview, ui.globals.ui_selected_enhancer, selected_face_detection,
                         max_face_distance, ui.globals.ui_blend_ratio, selected_mask_engine, clip_text, no_face_action, vr_mode, autorotate, maskimage, chk_showmaskoffsets, chk_restoreoriginalmouth, num_swap_steps, ui.globals.ui_upscale]
     previewoutputs = [previewimage, maskimage, preview_frame_num] 
     input_faces.select(on_select_input_face, None, None).success(fn=on_preview_frame_changed, inputs=previewinputs, outputs=previewoutputs)
@@ -251,7 +253,7 @@ def faceswap_tab():
     bt_preview_mask.click(fn=on_preview_mask, inputs=[preview_frame_num, bt_destfiles, clip_text, selected_mask_engine], outputs=[previewimage]) 
 
     start_event = bt_start.click(fn=start_swap, 
-        inputs=[output_method, ui.globals.ui_selected_enhancer, selected_face_detection, roop.globals.keep_frames, roop.globals.wait_after_extraction,
+        inputs=[selected_swap_model, output_method, ui.globals.ui_selected_enhancer, selected_face_detection, roop.globals.keep_frames, roop.globals.wait_after_extraction,
                     roop.globals.skip_audio, max_face_distance, ui.globals.ui_blend_ratio, selected_mask_engine, clip_text,video_swapping_method, no_face_action, vr_mode, autorotate, chk_restoreoriginalmouth, num_swap_steps, ui.globals.ui_upscale, maskimage],
         outputs=[bt_start, bt_stop, resultfiles], show_progress='full')
     after_swap_event = start_event.success(fn=on_resultfiles_finished, inputs=[resultfiles], outputs=[resultimage, resultvideo])
@@ -512,7 +514,7 @@ def on_end_face_selection():
     return gr.Column(visible=False), None
 
 
-def on_preview_frame_changed(frame_num, files, fake_preview, enhancer, detection, face_distance, blend_ratio,
+def on_preview_frame_changed(swap_model, frame_num, files, fake_preview, enhancer, detection, face_distance, blend_ratio,
                               selected_mask_engine, clip_text, no_face_action, vr_mode, auto_rotate, maskimage, show_face_area, restore_original_mouth, num_steps, upsample):
     global SELECTED_INPUT_FACE_INDEX, manual_masking, current_video_fps
 
@@ -571,7 +573,7 @@ def on_preview_frame_changed(frame_num, files, fake_preview, enhancer, detection
     if len(roop.globals.INPUT_FACESETS) <= face_index:
         face_index = 0
    
-    options = ProcessOptions(get_processing_plugins(mask_engine), roop.globals.distance_threshold, roop.globals.blend_ratio,
+    options = ProcessOptions(swap_model, get_processing_plugins(mask_engine), roop.globals.distance_threshold, roop.globals.blend_ratio,
                               roop.globals.face_swap_mode, face_index, clip_text, maskimage, num_steps, roop.globals.subsample_size, show_face_area, restore_original_mouth)
 
     current_frame = live_swap(current_frame, options)
@@ -673,6 +675,8 @@ def translate_swap_mode(dropdown_text):
         return "first"
     elif dropdown_text == "All input faces":
         return "all_input"
+    elif dropdown_text == "All input faces (random)":
+        return "all_random"
     elif dropdown_text == "All female":
         return "all_female"
     elif dropdown_text == "All male":
@@ -681,7 +685,7 @@ def translate_swap_mode(dropdown_text):
     return "all"
 
 
-def start_swap( output_method, enhancer, detection, keep_frames, wait_after_extraction, skip_audio, face_distance, blend_ratio,
+def start_swap( swap_model, output_method, enhancer, detection, keep_frames, wait_after_extraction, skip_audio, face_distance, blend_ratio,
                 selected_mask_engine, clip_text, processing_method, no_face_action, vr_mode, autorotate, restore_original_mouth, num_swap_steps, upsample, imagemask, progress=gr.Progress()):
     from ui.main import prepare_environment
     from roop.core import batch_process_regular
@@ -725,7 +729,7 @@ def start_swap( output_method, enhancer, detection, keep_frames, wait_after_extr
     roop.globals.video_quality = roop.globals.CFG.video_quality
     roop.globals.max_memory = roop.globals.CFG.memory_limit if roop.globals.CFG.memory_limit > 0 else None
 
-    batch_process_regular(output_method, list_files_process, mask_engine, clip_text, processing_method == "In-Memory processing", imagemask, restore_original_mouth, num_swap_steps, progress, SELECTED_INPUT_FACE_INDEX)
+    batch_process_regular(swap_model, output_method, list_files_process, mask_engine, clip_text, processing_method == "In-Memory processing", imagemask, restore_original_mouth, num_swap_steps, progress, SELECTED_INPUT_FACE_INDEX)
     is_processing = False
     outdir = pathlib.Path(roop.globals.output_path)
     outfiles = [str(item) for item in outdir.rglob("*") if item.is_file()]
