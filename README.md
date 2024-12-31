@@ -74,6 +74,15 @@ Additional commandline arguments are currently unsupported and settings should b
 
 ### Changelog
 
+**31.12.2024** v4.4.0 Hotfix
+
+Bugfix: Updated Colab to use present Cuda Drivers
+Bugfix: Live-Cam not working because of new face swapper
+Set default swapping model back to Insightface
+
+Happy New Year!
+
+
 **30.12.2024** v4.4.0
 
 - Added random face selection mode

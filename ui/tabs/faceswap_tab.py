@@ -144,7 +144,7 @@ def faceswap_tab():
                     bt_srcfiles = gr.Files(label='Source Images or Facesets', file_count="multiple", file_types=["image", ".fsz"], elem_id='filelist', height=233)
                     bt_destfiles = gr.Files(label='Target File(s)', file_count="multiple", file_types=["image", "video"], elem_id='filelist', height=233)
                 with gr.Row(variant='panel'):
-                    selected_swap_model = gr.Dropdown(model_swap_choices, value=model_swap_choices[2], label="Specify Face Swap Model")
+                    ui.globals.ui_selected_swap_model = gr.Dropdown(model_swap_choices, value=model_swap_choices[0], label="Specify Face Swap Model")
                     forced_fps = gr.Slider(minimum=0, maximum=120, value=0, label="Video FPS", info='Overrides detected fps if not 0', step=1.0, interactive=True, container=True)
 
             with gr.Column(scale=2):
@@ -213,7 +213,7 @@ def faceswap_tab():
                 resultimage = gr.Image(type='filepath', label='Final Image', interactive=False )
                 resultvideo = gr.Video(label='Final Video', interactive=False, visible=False)
 
-    previewinputs = [selected_swap_model, preview_frame_num, bt_destfiles, fake_preview, ui.globals.ui_selected_enhancer, selected_face_detection,
+    previewinputs = [ui.globals.ui_selected_swap_model, preview_frame_num, bt_destfiles, fake_preview, ui.globals.ui_selected_enhancer, selected_face_detection,
                         max_face_distance, ui.globals.ui_blend_ratio, selected_mask_engine, clip_text, no_face_action, vr_mode, autorotate, maskimage, chk_showmaskoffsets, chk_restoreoriginalmouth, num_swap_steps, ui.globals.ui_upscale]
     previewoutputs = [previewimage, maskimage, preview_frame_num] 
     input_faces.select(on_select_input_face, None, None).success(fn=on_preview_frame_changed, inputs=previewinputs, outputs=previewoutputs)
@@ -253,7 +253,7 @@ def faceswap_tab():
     bt_preview_mask.click(fn=on_preview_mask, inputs=[preview_frame_num, bt_destfiles, clip_text, selected_mask_engine], outputs=[previewimage]) 
 
     start_event = bt_start.click(fn=start_swap, 
-        inputs=[selected_swap_model, output_method, ui.globals.ui_selected_enhancer, selected_face_detection, roop.globals.keep_frames, roop.globals.wait_after_extraction,
+        inputs=[ui.globals.ui_selected_swap_model, output_method, ui.globals.ui_selected_enhancer, selected_face_detection, roop.globals.keep_frames, roop.globals.wait_after_extraction,
                     roop.globals.skip_audio, max_face_distance, ui.globals.ui_blend_ratio, selected_mask_engine, clip_text,video_swapping_method, no_face_action, vr_mode, autorotate, chk_restoreoriginalmouth, num_swap_steps, ui.globals.ui_upscale, maskimage],
         outputs=[bt_start, bt_stop, resultfiles], show_progress='full')
     after_swap_event = start_event.success(fn=on_resultfiles_finished, inputs=[resultfiles], outputs=[resultimage, resultvideo])
