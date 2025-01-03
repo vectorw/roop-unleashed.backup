@@ -74,6 +74,14 @@ Additional commandline arguments are currently unsupported and settings should b
 
 ### Changelog
 
+**03.01.2025** v4.4.1
+
+Bugfix: Extras Tab
+Bugfix: Preview Mask
+Bugfix: DMDNet working on Cuda only
+Updated Colab Script to also install CUDNN
+
+
 **31.12.2024** v4.4.0 Hotfix
 
 Bugfix: Updated Colab to use present Cuda Drivers

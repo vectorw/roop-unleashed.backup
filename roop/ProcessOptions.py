@@ -1,8 +1,11 @@
 class ProcessOptions:
 
     def __init__(self, swap_model, processordefines:dict, face_distance,  blend_ratio, swap_mode, selected_index, masking_text, imagemask, num_steps, subsample_size, show_face_area, restore_original_mouth, show_mask=False):
-        self.swap_modelname = swap_model
-        self.swap_output_size = int(swap_model.split()[-1])
+        if swap_model is not None: 
+            self.swap_modelname = swap_model
+            self.swap_output_size = int(swap_model.split()[-1])
+        else:
+            self.swap_output_size = 128
         self.processors = processordefines
         self.face_distance_threshold = face_distance
         self.blend_ratio = blend_ratio

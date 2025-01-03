@@ -250,7 +250,7 @@ def faceswap_tab():
     bt_clear_input_faces.click(fn=on_clear_input_faces, outputs=[input_faces])
 
     bt_add_local.click(fn=on_add_local_folder, inputs=[local_folder], outputs=[bt_destfiles])
-    bt_preview_mask.click(fn=on_preview_mask, inputs=[preview_frame_num, bt_destfiles, clip_text, selected_mask_engine], outputs=[previewimage]) 
+    bt_preview_mask.click(fn=on_preview_mask, inputs=[ui.globals.ui_selected_swap_model, preview_frame_num, bt_destfiles, clip_text, selected_mask_engine], outputs=[previewimage]) 
 
     start_event = bt_start.click(fn=start_swap, 
         inputs=[ui.globals.ui_selected_swap_model, output_method, ui.globals.ui_selected_enhancer, selected_face_detection, roop.globals.keep_frames, roop.globals.wait_after_extraction,
@@ -624,7 +624,7 @@ def on_set_frame(sender:str, frame_num):
     return gen_processing_text(list_files_process[idx].startframe,list_files_process[idx].endframe)
 
 
-def on_preview_mask(frame_num, files, clip_text, mask_engine):
+def on_preview_mask(swap_model, frame_num, files, clip_text, mask_engine):
     from roop.core import live_swap, get_processing_plugins
     global is_processing
 
@@ -645,7 +645,7 @@ def on_preview_mask(frame_num, files, clip_text, mask_engine):
           mask_engine = None
     elif mask_engine == "DFL XSeg":
         mask_engine = "mask_xseg"
-    options = ProcessOptions(get_processing_plugins(mask_engine), roop.globals.distance_threshold, roop.globals.blend_ratio,
+    options = ProcessOptions(swap_model, get_processing_plugins(mask_engine), roop.globals.distance_threshold, roop.globals.blend_ratio,
                               "all", 0, clip_text, None, 0, 128, False, False, True)
 
     current_frame = live_swap(current_frame, options)
